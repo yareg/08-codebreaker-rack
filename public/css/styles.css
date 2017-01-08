@@ -10,7 +10,7 @@ div#header {
 
 div#left-sidebar {
     background-color:#aaa;
-    height:200px;
+    height:300px;
     width:20%;
     float:left;
     padding: 5px;
@@ -18,7 +18,7 @@ div#left-sidebar {
 
 div#content {
     background-color:#eee;
-    height:200px;
+    height:300px;
     width:75%;
     float:left;
     padding: 5px;
@@ -29,4 +29,15 @@ div#footer {
     clear:both;
     text-align: center;
     padding: 5px 0 5px 0;
+}
+
+
+table#results_table{
+    border-collapse: collapse;
+    margin-top: 5px;
+}
+table#results_table td, table#results_table th{
+    padding: 5px 10px;
+    border: 1px solid black;
+    text-align: center;
 }

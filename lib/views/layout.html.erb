@@ -12,7 +12,10 @@
   <div id="left-sidebar">
     <div><b>Main Menu</b></div>
     <a href="/">Index</a><br />
-    <a href="#">New game</a><br />
+    <a href="/game/new">New game</a><br />
+    <% if @hint_available == true %>
+      <a href="/game/hint">Take hint</a><br />
+    <% end %>
     <a href="#">Load saved results</a>
   </div>
   <div id="content">

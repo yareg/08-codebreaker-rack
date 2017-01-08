@@ -18,41 +18,50 @@ class Racker
     controller = CodebreakerRack::GameController.new(@request)
     
     case @request.path
-      when '/'
+    when '/'
       @template = 'index'
-      Rack::Response.new(view_render('layout'))
-    
-    when '/game'
-      @template = 'game'
-      Rack::Response.new(view_render('index'))
-    
+      @hint_available = false
+      Rack::Response.new(view_render)
+
     when '/game/new'
       controller.new_action
       Rack::Response.new do |response|
-        response.redirect("/game")
+        response.redirect('/play')
       end
-    
+
+    when '/play'
+      bind_results controller.play_action
+      @template = 'game'
+      Rack::Response.new(view_render)
+
     when '/game/save'
       controller.save_action
       Rack::Response.new do |response|
         response.redirect("/results")
       end
     
-    when '/hint'
+    when '/game/hint'
       controller.hint_action
       Rack::Response.new do |response|
-        response.redirect("/game")
+        response.redirect('/play')
       end
     
     when '/results'
       @template = 'results'
-      Rack::Response.new(view_render('index'))
+      Rack::Response.new(view_render)
     
     else Rack::Response.new('Not Found', 404)
     end
   end
+
+  def bind_results(data)
+    data.each do |key, value|
+      self.class.send(:attr_accessor, key)
+      send("#{key}=", value)
+    end
+  end
    
-  def view_render(view)
+  def view_render(view = 'layout')
     abs_path = File.expand_path("../views/#{view}.html.erb", __FILE__)
     ERB.new(File.read(abs_path)).result(binding)
   end
