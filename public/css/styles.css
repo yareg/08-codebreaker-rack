@@ -32,11 +32,11 @@ div#footer {
 }
 
 
-table#results_table{
+table.grid{
     border-collapse: collapse;
     margin-top: 5px;
 }
-table#results_table td, table#results_table th{
+table.grid td, table.grid th{
     padding: 5px 10px;
     border: 1px solid black;
     text-align: center;

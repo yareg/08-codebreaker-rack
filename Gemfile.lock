@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/yareg/07-codebreaker.git
-  revision: edaa1e4df434a92e5126e72452649824e0ca9c82
+  revision: 9bb47d55e317b60947e289257268551f192e5917
   branch: task/codebreaker-simplified
   specs:
     codebreaker (0.1.0)

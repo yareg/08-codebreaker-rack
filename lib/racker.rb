@@ -20,7 +20,6 @@ class Racker
     case @request.path
     when '/'
       @template = 'index'
-      @hint_available = false
       Rack::Response.new(view_render)
 
     when '/game/new'
@@ -36,18 +35,24 @@ class Racker
 
     when '/game/save'
       controller.save_action
-      Rack::Response.new do |response|
-        response.redirect("/results")
+      if @request.get?
+        @template = 'save_results'
+        Rack::Response.new(view_render)
+      else
+        Rack::Response.new do |response|
+          response.redirect('/results')
+        end
       end
-    
+
     when '/game/hint'
       controller.hint_action
       Rack::Response.new do |response|
         response.redirect('/play')
       end
     
-    when '/results'
-      @template = 'results'
+      when '/results'
+      bind_results controller.load_action
+      @template = 'load_results'
       Rack::Response.new(view_render)
     
     else Rack::Response.new('Not Found', 404)

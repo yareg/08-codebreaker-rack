@@ -1,0 +1,22 @@
+<% if saved_data.length > 0 %>
+  <table class="grid">
+    <tr>
+      <th>user name</th>
+      <th>game status</th>
+      <th>attempts count</th>
+      <th>hint status</th>
+      <th>date/time</th>
+    </tr>
+    <% saved_data.each do |item| %>
+      <tr>
+        <td><%= item[:user_name] %></td>
+        <td><%= item[:game_status] %></td>
+        <td><%= item[:attempts_count] %></td>
+        <td><%= item[:hint] %></td>
+        <td><%= item[:date] %></td>
+      </tr>
+    <% end %>
+  </table>
+<% else %>
+    <strong>There are no data available!</strong>
+<% end %>
