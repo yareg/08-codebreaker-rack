@@ -50,7 +50,7 @@ class Racker
         response.redirect('/play')
       end
     
-      when '/results'
+    when '/results'
       bind_results controller.load_action
       @template = 'load_results'
       Rack::Response.new(view_render)

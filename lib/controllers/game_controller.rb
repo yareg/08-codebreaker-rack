@@ -9,7 +9,6 @@ module CodebreakerRack
         1 => 'You win!',
         2 => 'Game over!',
         3 => 'Playing',
-        4 => 'Waiting for the game',
     }
 
     def initialize(request)
@@ -33,47 +32,21 @@ module CodebreakerRack
         game_status = @request.session[:game][:status]
         if @current_game.attempt_available? && STATUS_PLAYING == game_status
 
-          if @request.session[:game][:use_hint]
-            @request.session[:game][:hint_value] = @current_game.take_hint
-            @request.session[:game][:use_hint] = false
-          end
+          take_hint if @request.session[:game][:use_hint]
 
           if @request.params['answer'].present? && valid_answer?(@request.params['answer'])
-            answer = @request.params['answer']
-            original_answer = answer.dup
-            @current_game.send(:use_attempt)
-            game_result = @current_game.send(:check_attempt, answer)
-            if '++++' == game_result
-              game_status = STATUS_WIN
-              @current_game.game_win
-            end
-            @request.session[:game][:answers] << {
-                answer: original_answer,
-                result: game_result,
-            }
+            answer = @request.params['answer'].dup
+            game_result = guess
+            game_status = check_game_status(game_result, game_status)
+            finalize_game game_status
+            add_answer(answer, game_result)
           end
         end
 
-        if !@current_game.attempt_available? && STATUS_PLAYING == game_status
-          game_status = STATUS_LOST
-          @current_game.game_lost
-        end
-
-        @request.session[:game][:status] = game_status if @request.session[:game][:status] != game_status
+        update_game_status game_status
       end
-
-      @request.session[:game][:hint_available] = false if @request.session[:game][:hint_available] && STATUS_PLAYING != game_status
-
-      {
-         game_status_text: STATUS_MAP[game_status],
-         game_active: game_status == STATUS_PLAYING,
-         hint_available: @request.session[:game][:hint_available],
-         hint_value: @request.session[:game][:hint_value],
-         save_game_enabled: game_status == STATUS_WIN,
-         secret_code: @current_game.send(:secret_code),
-         attemps_amount: Codebreaker::Game::ATTEMPTS_AMOUNT,
-         answers: @request.session[:game][:answers],
-      }
+      disable_hint_with_condition game_status
+      generate_response
     end
 
     def hint_action
@@ -117,6 +90,57 @@ module CodebreakerRack
 
     def init_manager
       @manager = Codebreaker::Manager.new
+    end
+
+    def take_hint
+      @request.session[:game][:hint_value] = @current_game.take_hint
+      @request.session[:game][:use_hint] = false
+    end
+
+    def guess
+      @current_game.send(:use_attempt)
+      @current_game.send(:check_attempt, @request.params['answer'])
+    end
+
+    def check_game_status(game_result, current_status)
+      return STATUS_WIN if '++++' == game_result
+      return STATUS_LOST if !@current_game.attempt_available? && STATUS_PLAYING == current_status
+      STATUS_PLAYING
+    end
+
+    def finalize_game(game_status)
+      @current_game.game_win if STATUS_WIN == game_status
+      @current_game.game_lost if STATUS_LOST == game_status
+    end
+
+    def disable_hint_with_condition(game_status)
+      @request.session[:game][:hint_available] = false if @request.session[:game][:hint_available] && STATUS_PLAYING != game_status
+    end
+
+    def update_game_status(game_status)
+      @request.session[:game][:status] = game_status if @request.session[:game][:status] != game_status
+    end
+
+
+    def add_answer(answer, game_result)
+      @request.session[:game][:answers] << {
+          answer: answer,
+          result: game_result,
+      }
+    end
+
+    def generate_response
+      game_status = @request.session[:game][:status]
+      {
+          game_status_text: STATUS_MAP[game_status],
+          game_active: game_status == STATUS_PLAYING,
+          hint_available: @request.session[:game][:hint_available],
+          hint_value: @request.session[:game][:hint_value],
+          save_game_enabled: game_status == STATUS_WIN,
+          secret_code: @current_game.send(:secret_code),
+          attemps_amount: Codebreaker::Game::ATTEMPTS_AMOUNT,
+          answers: @request.session[:game][:answers],
+      }
     end
   end
 end
