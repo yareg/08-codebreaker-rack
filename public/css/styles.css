@@ -36,6 +36,11 @@ table.grid{
     border-collapse: collapse;
     margin-top: 5px;
 }
+
+span.error {
+    color: red;
+}
+
 table.grid td, table.grid th{
     padding: 5px 10px;
     border: 1px solid black;

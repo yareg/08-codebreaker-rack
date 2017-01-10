@@ -3,3 +3,6 @@ Enter your name: <br />
   <input type="text" name="user_name" autocomplete="off" />
   <input type="submit" value="Send">
 </form>
+<% if user_message %>
+    <span class="error"><%= user_message %></span> <br />
+<% end %>

@@ -31,7 +31,7 @@ class Racker
       if @request.get?
         rack_response(nil, nil, 'save_results', nil, false)
       else
-        rack_response(controller, 'save_action', nil, '/results', false)
+        rack_response(controller, 'save_action', 'save_results', '/results')
       end
 
     when '/game/hint'
@@ -49,10 +49,10 @@ class Racker
   def rack_response(controller = nil, action = nil, template = nil, redirect_url = nil, bind_data = true)
     controller_result = controller.public_send(action) unless controller.nil?
     bind_results controller_result if bind_data
-    if redirect_url.nil? 
+    if redirect_url.nil? || !controller_result[:valid]
       @template = template
       Rack::Response.new(view_render)
-    else
+    elsif controller.nil? || controller_result[:valid]
       Rack::Response.new do |response|
         response.redirect(redirect_url)
       end

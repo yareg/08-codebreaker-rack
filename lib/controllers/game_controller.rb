@@ -25,6 +25,9 @@ module CodebreakerRack
       @request.session[:game][:answers] = []
       @request.session[:game][:status] = STATUS_PLAYING
       @request.session[:game][:hint_available] = true
+      @request.session[:valid] = true
+      @request.session[:game][:user_message] = ''
+      generate_response false
     end
 
     def play_action
@@ -33,13 +36,17 @@ module CodebreakerRack
         if @current_game.attempt_available? && STATUS_PLAYING == game_status
 
           take_hint if @request.session[:game][:use_hint]
-
-          if @request.params['answer'].present? && valid_answer?(@request.params['answer'])
-            answer = @request.params['answer'].dup
-            game_result = guess
-            game_status = check_game_status(game_result, game_status)
-            finalize_game game_status
-            add_answer(answer, game_result)
+          if @request.post?   
+            if @request.params['answer'].present? && (valid_answer? @request.params['answer'])
+              answer = @request.params['answer'].dup
+              game_result = guess
+              game_status = check_game_status(game_result, game_status)
+              finalize_game game_status
+              add_answer(answer, game_result)
+              reset_user_message
+            else
+              update_user_message 'You have to enter four digits from 1 till 6'
+            end
           end
         end
 
@@ -52,30 +59,32 @@ module CodebreakerRack
     def hint_action
       @request.session[:game][:hint_available] = false
       @request.session[:game][:use_hint] = true
+      generate_response false
     end
 
     def save_action
       if @request.post?
         if ( @current_game.present? ) && ( STATUS_WIN == @request.session[:game][:status] ) &&
             ( @request.params['user_name'].present? ) && ( valid_username? @request.params['user_name'] )
-
-          @manager.send(:load_data_manipulator).add_game(
-              @request.params['user_name'],
-              @current_game.game_win?,
-              @current_game.attempts_used,
-              !@current_game.hint_available?
-          )
-
+          save_game_result
+          reset_user_message
+          @request.session[:valid] = true
           Rack::Response.new do |response|
             response.redirect('/results')
           end
+        else
+          @request.session[:valid] = false
+          update_user_message 'Name cannot contain less, then 3 symbols!'
         end
       end
+      generate_response false
     end
 
     def load_action
       init_manager unless @manager.present?
-      { saved_data: @manager.send(:load_data_manipulator).return_all_data }
+      @request.session[:game][:user_message] = ''
+      data = { saved_data: @manager.send(:load_data_manipulator).return_all_data }
+      (generate_response(false, false)).merge data
     end
 
     private
@@ -121,25 +130,50 @@ module CodebreakerRack
       @request.session[:game][:status] = game_status if @request.session[:game][:status] != game_status
     end
 
-
     def add_answer(answer, game_result)
       @request.session[:game][:answers] << {
-          answer: answer,
-          result: game_result,
+        answer: answer,
+        result: game_result,
       }
     end
 
-    def generate_response
+    def update_user_message(message)
+      @request.session[:game][:user_message] = message
+    end
+
+    def reset_user_message
+      update_user_message '' unless @request.session[:game][:user_message].empty?
+    end
+
+    def save_game_result
+      @manager.send(:load_data_manipulator).add_game(
+        @request.params['user_name'],
+        @current_game.game_win?,
+        @current_game.attempts_used,
+        !@current_game.hint_available?
+      )
+    end
+
+    def generate_response(all_fields = true, message = true)
+      response = {
+        valid: @request.session[:valid],
+      }
+      response[:user_message] = @request.session[:game][:user_message] if message
+      response.merge! generate_other_fields if all_fields
+      response
+    end
+
+    def generate_other_fields
       game_status = @request.session[:game][:status]
       {
-          game_status_text: STATUS_MAP[game_status],
-          game_active: game_status == STATUS_PLAYING,
-          hint_available: @request.session[:game][:hint_available],
-          hint_value: @request.session[:game][:hint_value],
-          save_game_enabled: game_status == STATUS_WIN,
-          secret_code: @current_game.send(:secret_code),
-          attemps_amount: Codebreaker::Game::ATTEMPTS_AMOUNT,
-          answers: @request.session[:game][:answers],
+        game_status_text: STATUS_MAP[game_status],
+        game_active: game_status == STATUS_PLAYING,
+        hint_available: @request.session[:game][:hint_available],
+        hint_value: @request.session[:game][:hint_value],
+        save_game_enabled: game_status == STATUS_WIN,
+        secret_code: @current_game.send(:secret_code),
+        attemps_amount: Codebreaker::Game::ATTEMPTS_AMOUNT,
+        answers: @request.session[:game][:answers],
       }
     end
   end
