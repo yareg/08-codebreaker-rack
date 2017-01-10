@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Codebreaker Rack App</title>
+  <link href='/css/styles.css' rel='stylesheet' type='text/css' />
+</head>
+<body>
+<div id="body">
+  <div id="header">
+    <h1>Welcome to the web-version of the Codebreaker!</h1>
+  </div>
+  <div id="left-sidebar">
+    <div><b>Main Menu</b></div>
+    <a href="/">Index</a><br />
+    <a href="/game/new">New game</a><br />
+    <% if @hint_available == true %>
+      <a href="/game/hint">Take hint</a><br />
+    <% end %>
+    <% if @save_game_enabled %>
+      <a href="/game/save">Save results</a> <br />
+    <% end %>
+    <a href="/results">Load saved results</a> <br />
+  </div>
+  <div id="content">
+    <%= view_render(template) %>
+  </div>
+  <div id="footer">
+      Copyright © 2017
+  </div>
+</div>
+</body>
+</html>
+

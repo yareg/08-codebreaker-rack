@@ -1,0 +1,29 @@
+<span>You have <%= attemps_amount %> attempts to guess code. Good luck!</span>
+
+<form method="post" action="/play">
+  <input type="text" name="answer" autocomplete="off" />
+  <input type="submit" value="Answer">
+</form>
+<% if user_message %>
+  <span class="error"><%= user_message %></span> <br />
+<% end %>
+Code: <span class="code_value"><%= secret_code %></span> <br />
+Game status: <%= game_status_text %> <br />
+<% if hint_value %>
+    The code begins with: <%= hint_value %> <br />
+<% end %>
+
+<% if answers.length > 0 %>
+  <table class="grid">
+    <tr>
+      <th>answer</th>
+      <th>result</th>
+    </tr>
+    <% answers.each do |answer| %>
+      <tr>
+        <td><%= answer[:answer] %></td>
+        <td><%= answer[:result] %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>

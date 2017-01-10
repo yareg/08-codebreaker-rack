@@ -1,0 +1,48 @@
+div#body {
+    width:100%;
+}
+
+div#header {
+    background-color:#b5dcb3;
+    width:100%;
+    text-align: center;
+}
+
+div#left-sidebar {
+    background-color:#aaa;
+    height:300px;
+    width:20%;
+    float:left;
+    padding: 5px;
+}
+
+div#content {
+    background-color:#eee;
+    height:300px;
+    width:75%;
+    float:left;
+    padding: 5px;
+}
+
+div#footer {
+    background-color:#b5dcb3;
+    clear:both;
+    text-align: center;
+    padding: 5px 0 5px 0;
+}
+
+
+table.grid{
+    border-collapse: collapse;
+    margin-top: 5px;
+}
+
+span.error {
+    color: red;
+}
+
+table.grid td, table.grid th{
+    padding: 5px 10px;
+    border: 1px solid black;
+    text-align: center;
+}

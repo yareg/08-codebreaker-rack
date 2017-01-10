@@ -1,0 +1,8 @@
+Enter your name: <br />
+<form action="/game/save" method="post">
+  <input type="text" name="user_name" autocomplete="off" />
+  <input type="submit" value="Send">
+</form>
+<% if user_message %>
+    <span class="error"><%= user_message %></span> <br />
+<% end %>
