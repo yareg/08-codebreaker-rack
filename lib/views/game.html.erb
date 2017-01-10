@@ -4,7 +4,7 @@
   <input type="text" name="answer" autocomplete="off" />
   <input type="submit" value="Answer">
 </form>
-Code: <%= secret_code %> <br />
+Code: <span class="code_value"><%= secret_code %></span> <br />
 Game status: <%= game_status_text %> <br />
 <% if hint_value %>
     The code begins with: <%= hint_value %> <br />
