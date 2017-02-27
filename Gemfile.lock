@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/yareg/07-codebreaker.git
+  remote: https://github.com/yareg/07-codebreaker.git
   revision: 9bb47d55e317b60947e289257268551f192e5917
   branch: task/codebreaker-simplified
   specs:
@@ -66,4 +66,4 @@ DEPENDENCIES
   rspec
 
 BUNDLED WITH
-   1.13.7
+   1.14.5
