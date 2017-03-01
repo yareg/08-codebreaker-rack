@@ -8,4 +8,4 @@ notifications:
 install:
   - bundle install
 script:
-  - rspec --format documentation --color
+  - bundle exec rspec
